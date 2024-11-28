@@ -78,6 +78,7 @@ public class ShapeRecognizer : MonoBehaviour
             {
                 ++strokeId;
                 gestureOnScreenPrefab.GetComponent<LineRenderer>().enabled = true;
+                gestureOnScreenPrefab.GetComponent<LineRenderer>().sortingLayerName = "shapes";
                 currentGestureLineRenderer = gestureOnScreenPrefab.GetComponent<LineRenderer>();
 
                 vertexCount = 0;
@@ -169,6 +170,7 @@ public class ShapeRecognizer : MonoBehaviour
 
         LineRenderer shapeLineRenderer = lineRendererObject.AddComponent<LineRenderer>();
         shapeLineRenderer.useWorldSpace = false;
+        shapeLineRenderer.sortingLayerName = "shapes";
 
         Vector3[] worldPositions = GetWorldPositionsFromLineRenderer(currentGestureLineRenderer);
 
@@ -383,6 +385,7 @@ public class ShapeRecognizer : MonoBehaviour
 
         LineRenderer tempLineRenderer = tempShape.AddComponent<LineRenderer>();
         tempLineRenderer.positionCount = currentGestureLineRenderer.positionCount;
+        tempLineRenderer.sortingLayerName = "shapes";
 
         Vector3[] positions = new Vector3[currentGestureLineRenderer.positionCount];
         currentGestureLineRenderer.GetPositions(positions);

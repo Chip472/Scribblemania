@@ -55,6 +55,8 @@ public class BreakOnImpactBehavior : MonoBehaviour
         Rigidbody2D pieceRb = linePiece.AddComponent<Rigidbody2D>();
 
         LineRenderer pieceRenderer = linePiece.AddComponent<LineRenderer>();
+        pieceRenderer.sortingLayerName = "shapes";
+
         pieceRenderer.widthMultiplier = lineRenderer.widthMultiplier;
         pieceRenderer.positionCount = 2;
         pieceRenderer.SetPosition(0, start);

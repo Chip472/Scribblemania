@@ -33,8 +33,8 @@ public class TriggeredWhenInteract : MonoBehaviour
 
     private void Update()
     {
-        if (interactText.activeSelf && Input.GetKeyDown(KeyCode.E)) 
-        { 
+        if (interactText.activeSelf && Input.GetKeyDown(KeyCode.E))
+        {
             triggeredObj.SetActive(true);
             interactText.SetActive(false);
         }

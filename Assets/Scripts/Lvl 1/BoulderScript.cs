@@ -8,7 +8,9 @@ public class BoulderScript : MonoBehaviour
     {
         if (collision.gameObject.name.Contains("Drawn shape"))
         {
-            Destroy(gameObject);
+            GetComponent<Animator>().SetBool("break", true);
         }
     }
 }
+
+

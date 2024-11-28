@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Obstacle
+  - Funny Tree
   layers:
   - Default
   - TransparentFX
@@ -63,4 +64,10 @@ TagManager:
     locked: 0
   - name: grass front
     uniqueID: 892399675
+    locked: 0
+  - name: player
+    uniqueID: 735599005
+    locked: 0
+  - name: shapes
+    uniqueID: 1723976137
     locked: 0

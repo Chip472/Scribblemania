@@ -15,6 +15,10 @@ public class TabletAnim : MonoBehaviour
     public bool isIncreasing;
     private bool isChanging;
 
+    [SerializeField] private Animator tabletAnimator; 
+    [SerializeField] private string animationName;
+    [SerializeField] private float animationLength; 
+
     void Start()
     {
         isChanging = false;
@@ -28,8 +32,32 @@ public class TabletAnim : MonoBehaviour
             return;
         }
 
+        if (tabletAnimator != null)
+        {
+            AnimationClip clip = GetAnimationClip(animationName);
+            if (clip != null)
+            {
+                animationLength = clip.length;
+                speed = (maxWidth - minWidth) / animationLength;
+            }
+        }
+
         currentTopWidth = minWidth;
     }
+
+    AnimationClip GetAnimationClip(string name)
+    {
+        foreach (AnimationClip clip in tabletAnimator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == name)
+            {
+                return clip;
+            }
+        }
+        Debug.LogError($"Animation '{name}' not found in Animator.");
+        return null;
+    }
+
 
     void FixedUpdate()
     {

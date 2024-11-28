@@ -8,6 +8,11 @@ public class CameraFollowWithBoundaries : MonoBehaviour
     public Vector2 minBoundary;
     public Vector2 maxBoundary;
 
+    public float shakeDuration = 0.5f;
+    public float shakeMagnitude = 0.2f;
+
+    private float shakeTimeRemaining = 0f;
+
     void LateUpdate()
     {
         if (player != null)
@@ -17,8 +22,22 @@ public class CameraFollowWithBoundaries : MonoBehaviour
             float clampedX = Mathf.Clamp(desiredPosition.x, minBoundary.x, maxBoundary.x);
             float clampedY = Mathf.Clamp(desiredPosition.y, minBoundary.y, maxBoundary.y);
 
-            // Move the camera instantly to the target position
-            transform.position = new Vector3(clampedX, clampedY, desiredPosition.z);
+            Vector3 shakeOffset = Vector3.zero;
+            if (shakeTimeRemaining > 0)
+            {
+                shakeOffset = Random.insideUnitSphere * shakeMagnitude;
+                shakeOffset.z = 0f;
+                shakeTimeRemaining -= Time.deltaTime;
+            }
+
+            transform.position = new Vector3(clampedX, clampedY, desiredPosition.z) + shakeOffset;
         }
+    }
+
+    public void StartShake(float duration, float magnitude)
+    {
+        shakeDuration = duration;
+        shakeMagnitude = magnitude;
+        shakeTimeRemaining = duration;
     }
 }

@@ -9,6 +9,9 @@ public class Lvl1Manager : MonoBehaviour
     [SerializeField] private GameObject player, alien;
     [SerializeField] private TriggeredWhenInteract triggered;
 
+    [SerializeField] private GameObject block;
+    [SerializeField] private GameObject newBoulder;
+
     private ShapeRecognizer shapeRecognizer;
     private bool[] isDiaEnd;
     private bool boulderTriggerActive = false;
@@ -55,24 +58,28 @@ public class Lvl1Manager : MonoBehaviour
             dialogues[2].SetActive(true);
         }
 
-        if (dialogues[2].activeSelf && !isDiaEnd[2])
+        if (!newBoulder.activeSelf)
         {
-            isDiaEnd[2] = true;
+            if (dialogues[2].activeSelf && !isDiaEnd[2])
+            {
+                isDiaEnd[2] = true;
+            }
+            if (!dialogues[2].activeSelf && isDiaEnd[2] && shapeRecognizer.drawnShapeName == "rectangle")
+            {
+                isDiaEnd[2] = false;
+                dialogues[3].SetActive(true);
+            }
         }
-        if (!dialogues[2].activeSelf && isDiaEnd[2] && shapeRecognizer.drawnShapeName == "rectangle")
+        else
         {
-            isDiaEnd[2] = false;
-            dialogues[3].SetActive(true);
-        }
+            dialogues[3].SetActive(false);
+            triggered.gameObject.SetActive(false);
 
-        if (dialogues[3].activeSelf && !isDiaEnd[3])
-        {
-            isDiaEnd[3] = true;
-        }
-        if (!dialogues[3].activeSelf && isDiaEnd[3] && !GameObject.Find("Boulder"))
-        {
-            isDiaEnd[3] = false;
-            dialogues[4].SetActive(true);
+            if (!isDiaEnd[3])
+            {
+                isDiaEnd[3] = true;
+                dialogues[4].SetActive(true);
+            }
         }
 
         if (dialogues[5].activeSelf)
@@ -91,6 +98,7 @@ public class Lvl1Manager : MonoBehaviour
         {
             isDiaEnd[4] = false;
             dialogues[7].SetActive(true);
+            block.SetActive(false);
         }
 
         if (!dialogues[8].activeSelf && !GameObject.Find("Cliff trigger") && !isDiaEnd[5])
@@ -142,6 +150,7 @@ public class Lvl1Manager : MonoBehaviour
             playerMovement.enabled = !isAnyNormalDialogueActive;
             if (isAnyNormalDialogueActive)
             {
+                playerMovement.gameObject.GetComponent<Animator>().SetFloat("MoveType", 0f);
                 playerMovement.gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePositionX;
                 playerMovement.gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
             }
