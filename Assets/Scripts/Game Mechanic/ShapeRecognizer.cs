@@ -24,6 +24,7 @@ public class ShapeRecognizer : MonoBehaviour
 
     private bool recognized;
     public string drawnShapeName;
+    public float drawnShapeScore;
 
     public ParticleSystem psArrow, psTriangle, psCircle;
 
@@ -102,6 +103,7 @@ public class ShapeRecognizer : MonoBehaviour
                 Result gestureResult = PointCloudRecognizer.Classify(candidate, trainingSet.ToArray());
 
                 drawnShapeName = gestureResult.GestureClass;
+                drawnShapeScore = gestureResult.Score;
                 Debug.Log(gestureResult.GestureClass + " " + gestureResult.Score);
 
                 CreateShapeGameObject(gestureResult.GestureClass, gestureResult.Score);
@@ -202,46 +204,55 @@ public class ShapeRecognizer : MonoBehaviour
             case "arrow up":
                 rb.velocity = Vector2.up * arrowSpd;
                 ExplodeOnCollision(shape, psArrow);
+                SavedShape(shape);
                 break;
 
             case "arrow down":
                 rb.velocity = Vector2.down * arrowSpd;
                 ExplodeOnCollision(shape, psArrow);
+                SavedShape(shape);
                 break;
 
             case "arrow right":
                 rb.velocity = Vector2.right * arrowSpd;
                 ExplodeOnCollision(shape, psArrow);
+                SavedShape(shape);
                 break;
 
             case "arrow left":
                 rb.velocity = Vector2.left * arrowSpd;
                 ExplodeOnCollision(shape, psArrow);
+                SavedShape(shape);
                 break;
 
             case "triangle up":
                 rb.velocity = Vector2.up * triaSpd;
                 ExplodeOnCollision(shape, psTriangle);
+                SavedShape(shape);
                 break;
 
             case "triangle down":
                 rb.velocity = Vector2.down * triaSpd;
                 ExplodeOnCollision(shape, psTriangle);
+                SavedShape(shape);
                 break;
 
             case "triangle right":
                 rb.velocity = Vector2.right * triaSpd;
                 ExplodeOnCollision(shape, psTriangle);
+                SavedShape(shape);
                 break;
 
             case "triangle left":
                 rb.velocity = Vector2.left * triaSpd;
                 ExplodeOnCollision(shape, psTriangle);
+                SavedShape(shape);
                 break;
 
             case "rectangle":
                 rb.gravityScale = 1f;
                 BreakOnTrigger(shape);
+                SavedShape(shape);
                 break;
 
             case "circle":
@@ -332,6 +343,12 @@ public class ShapeRecognizer : MonoBehaviour
     #endregion
 
     #region After shape recognition 
+    private void SavedShape(GameObject shape)
+    {
+        SavedShapeNameAndScore saved = shape.AddComponent<SavedShapeNameAndScore>();
+        saved.shapeName = drawnShapeName;
+        saved.shapeScore = drawnShapeScore;
+    }
     private void ExplodeOnCollision(GameObject shape, ParticleSystem particle)
     {
         Collider2D collider = shape.GetComponent<Collider2D>();

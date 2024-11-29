@@ -160,9 +160,15 @@ public class DialogueSystem : MonoBehaviour
 
     private void GoToNextLine()
     {
-        ClearButtons(); 
+        ClearButtons();
 
         DialogueNode currentNode = dialogueNodes[currentLineIndex];
+
+        if (currentNode.nextLineIndex == -1 && (currentNode.choices == null || currentNode.choices.Length == 0))
+        {
+            EndDialogue();
+            return;
+        }
 
         if (currentNode.nextLineIndex != -1)
         {
@@ -182,6 +188,7 @@ public class DialogueSystem : MonoBehaviour
             EndDialogue();
         }
     }
+
 
 
     private void EndDialogue()

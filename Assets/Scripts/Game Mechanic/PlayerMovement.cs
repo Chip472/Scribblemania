@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -21,21 +22,39 @@ public class PlayerMovement : MonoBehaviour
     public GameManager gameManager;
 
     bool isCharging = false;
+    
+    public int maxHealth = 100;
+    private int currentHealth;
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        currentHealth = maxHealth;
     }
 
     void Update()
     {
+        if (isMovementDisabled) return;
         float moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        if (!isGrounded)
+
+        if (Mathf.Abs(moveInput) > 0.1f && isGrounded && !isCharging)
+        {
+            animator.SetFloat("MoveType", 1f);
+        }
+        else if (isGrounded && !isCharging)
+        {
+            animator.SetFloat("MoveType", 0f);
+        }
+        else if (!isGrounded)
         {
             animator.SetFloat("MoveType", 2f);
 
@@ -52,28 +71,19 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetFloat("JumpDirection", 0.5f);
             }
         }
-        else if (Mathf.Abs(moveInput) > 0.1f)
-        {
-            animator.SetFloat("MoveType", 1f);
-        }
-        else
-        {
-            if (!isCharging)
-            {
-                animator.SetFloat("MoveType", 0f);
-            }
-        }
+
 
         if (moveInput > 0 && !isFacingRight)
         {
-            animator.SetFloat("Direction", 1);
             Flip();
+            animator.SetFloat("Direction", 1f);
         }
         else if (moveInput < 0 && isFacingRight)
         {
-            animator.SetFloat("Direction", -1);
             Flip();
+            animator.SetFloat("Direction", -1f);
         }
+
 
         if ((Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W)) && isGrounded)
         {
@@ -94,6 +104,23 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
     }
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+
+        Debug.Log($"Player took {damage} damage. Current health: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        gameManager.isPlayerDead = true;
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -101,6 +128,18 @@ public class PlayerMovement : MonoBehaviour
         {
             gameManager.isPlayerDead = true;
         }
+    }
+
+    public IEnumerator GetHitCoolDown(float attackCooldown, int damage)
+    {
+        yield return new WaitForSeconds(attackCooldown);
+        TakeDamage(damage);
+    }
+
+    public void DiedAnim()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, 3f);
+        animator.SetBool("Died", true);
     }
 
     #region Saving stuff

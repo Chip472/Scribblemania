@@ -8,6 +8,9 @@ public class OrbBehavior : MonoBehaviour
     public Transform player;
     public float cirSpd = 5f;
     public float stoppingDistance = 0.5f;
+    
+    public string shapeName;
+    public float shapeScore;
 
     private Transform targetEnemy;
 

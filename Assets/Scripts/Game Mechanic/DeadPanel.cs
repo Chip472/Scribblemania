@@ -11,14 +11,18 @@ public class DeadPanel : MonoBehaviour
     private int chosenDia;
     private GameManager gameManager;
 
-    void Start()
+    private void Start()
     {
         gameManager = GameObject.FindFirstObjectByType<GameManager>();
+    }
 
+    void OnEnable()
+    {
         chosenDia = Random.Range(0, alienDia.Length);
         alienTxt.text = alienDia[chosenDia];
-
     }
+
+    
 
     public void LoadCheckPoint()
     {

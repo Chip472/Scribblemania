@@ -7,8 +7,8 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public Transform player;
-    public string defaultSceneName = "StartScene"; 
-    public Vector3 defaultStartPosition; 
+    public string defaultSceneName = "StartScene";
+    public Vector3 defaultStartPosition;
     private string saveFilePath;
 
     [SerializeField] private GameObject deadPanel;
@@ -31,7 +31,10 @@ public class GameManager : MonoBehaviour
 
     IEnumerator DelayDie()
     {
-        player.gameObject.GetComponent<Animator>().SetBool("Died", true);
+        if (player != null)
+        {
+            player.gameObject.GetComponent<PlayerMovement>().DiedAnim();
+        }
 
         yield return new WaitForSeconds(1.5f);
         deadPanel.SetActive(true);
@@ -61,6 +64,13 @@ public class GameManager : MonoBehaviour
 
     public void LoadCheckpoint()
     {
+        deadPanel.SetActive(false);
+
+        if (player != null)
+        {
+            player.gameObject.GetComponent<Animator>().SetBool("Died", false);
+        }
+
         if (!File.Exists(saveFilePath))
         {
             Debug.Log("No save file found. Loading default checkpoint.");
@@ -76,6 +86,7 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(data.sceneName);
             SceneManager.sceneLoaded += (scene, mode) =>
             {
+                FindOrAssignPlayer();
                 MovePlayerToCheckpoint(data);
             };
         }
@@ -92,6 +103,7 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(defaultSceneName);
             SceneManager.sceneLoaded += (scene, mode) =>
             {
+                FindOrAssignPlayer();
                 MovePlayerToDefaultPosition();
             };
         }
@@ -103,14 +115,54 @@ public class GameManager : MonoBehaviour
 
     private void MovePlayerToCheckpoint(SaveData data)
     {
-        player.position = data.position;
-        Debug.Log("Checkpoint loaded.");
+        if (player == null)
+        {
+            FindOrAssignPlayer();
+        }
+
+        if (player != null)
+        {
+            player.position = data.position;
+            Debug.Log("Checkpoint loaded.");
+        }
+        else
+        {
+            Debug.LogError("Player object not found after scene load.");
+        }
     }
 
     private void MovePlayerToDefaultPosition()
     {
-        player.position = defaultStartPosition;
-        Debug.Log("Default checkpoint loaded.");
+        if (player == null)
+        {
+            FindOrAssignPlayer();
+        }
+
+        if (player != null)
+        {
+            player.position = defaultStartPosition;
+            Debug.Log("Default checkpoint loaded.");
+        }
+        else
+        {
+            Debug.LogError("Player object not found after scene load.");
+        }
+    }
+
+    private void FindOrAssignPlayer()
+    {
+        if (player == null)
+        {
+            GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
+            if (foundPlayer != null)
+            {
+                player = foundPlayer.transform;
+            }
+            else
+            {
+                Debug.LogError("Player object could not be found in the scene.");
+            }
+        }
     }
 
     public void OnPlayerDeath()

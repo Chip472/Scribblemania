@@ -9,7 +9,6 @@ public class Lvl1Manager : MonoBehaviour
     [SerializeField] private GameObject player, alien;
     [SerializeField] private TriggeredWhenInteract triggered;
 
-    [SerializeField] private GameObject block;
     [SerializeField] private GameObject newBoulder;
 
     private ShapeRecognizer shapeRecognizer;
@@ -17,6 +16,8 @@ public class Lvl1Manager : MonoBehaviour
     private bool boulderTriggerActive = false;
 
     private PlayerMovement playerMovement;
+
+    bool checkCliffTrigger = false;
 
     void Start()
     {
@@ -64,7 +65,7 @@ public class Lvl1Manager : MonoBehaviour
             {
                 isDiaEnd[2] = true;
             }
-            if (!dialogues[2].activeSelf && isDiaEnd[2] && shapeRecognizer.drawnShapeName == "rectangle")
+            if (!dialogues[2].activeSelf && isDiaEnd[2] && shapeRecognizer.drawnShapeName == "rectangle" && shapeRecognizer.drawnShapeScore >= 0.9f)
             {
                 isDiaEnd[2] = false;
                 dialogues[3].SetActive(true);
@@ -88,37 +89,41 @@ public class Lvl1Manager : MonoBehaviour
             alien.SetActive(false);
         }
 
-        if (!GameObject.Find("Tutor 2 trigger") && shapeRecognizer.drawnShapeName == "arrow down" && !isDiaEnd[4])
+        if (!GameObject.Find("Tutor 2 trigger") && shapeRecognizer.drawnShapeName == "arrow down" && shapeRecognizer.drawnShapeScore >= 0.9f && !isDiaEnd[4])
         {
             shapeRecognizer.UnlockShape("triangle");
             isDiaEnd[4] = true;
             dialogues[6].SetActive(true);
         }
-        if (!dialogues[6].activeSelf && isDiaEnd[4] && shapeRecognizer.drawnShapeName == "triangle left")
+        if (!dialogues[6].activeSelf && isDiaEnd[4] && shapeRecognizer.drawnShapeName == "triangle left" && shapeRecognizer.drawnShapeScore >= 0.9f)
         {
             isDiaEnd[4] = false;
             dialogues[7].SetActive(true);
-            block.SetActive(false);
+            GameObject.Find("Triggers").transform.GetChild(1).gameObject.SetActive(true);
+            checkCliffTrigger = true;
         }
-
-        if (!dialogues[8].activeSelf && !GameObject.Find("Cliff trigger") && !isDiaEnd[5])
+         
+        if (!dialogues[8].activeSelf && GameObject.Find("Triggers").transform.GetChild(1).gameObject.name != "Cliff trigger" && !isDiaEnd[5] && checkCliffTrigger)
         {
             shapeRecognizer.drawnShapeName = null;
+            shapeRecognizer.drawnShapeScore = 0;
+            GameObject.Find("Tree can be shoot").GetComponent<TreeAtCliff>().isCompleteTutor = true;
+
             isDiaEnd[5] = true;
             isDiaEnd[6] = true;
         }
 
-        if (isDiaEnd[6]) // Them dieu kien isTreeGetHit
+        if (isDiaEnd[6] && FindFirstObjectByType<TreeAtCliff>().isHit)
         {
             isDiaEnd[6] = false;
 
-            if (shapeRecognizer.drawnShapeName == "arrow right")
+            if (shapeRecognizer.drawnShapeName == "arrow right" && shapeRecognizer.drawnShapeScore >= 0.9f)
             {
                 StartCoroutine(DelayCliffScene(2f, 9));
             }
-            else if (shapeRecognizer.drawnShapeName == "triangle right")
+            else if (GameObject.Find("Worm").activeSelf && !FindFirstObjectByType<GameManager>().isPlayerDead)
             {
-                StartCoroutine(DelayCliffScene(10f, 10));
+                StartCoroutine(DelayCliffScene(9f, 10));
             }
         }
 

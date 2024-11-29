@@ -6,7 +6,10 @@ public class TreeAtCliff : MonoBehaviour
 {
     public AudioSource ahSound;
     public GameObject worm;
-    private Animator treeAnim;
+    public Animator treeAnim;
+
+    public bool isCompleteTutor = false;
+    public bool isHit = false;
 
     private void Start()
     {
@@ -15,21 +18,23 @@ public class TreeAtCliff : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name.Contains("Drawn shape"))
+        if (collision.gameObject.name.Contains("Drawn shape") && isCompleteTutor)
         {
-            if (GameObject.FindAnyObjectByType<ShapeRecognizer>().drawnShapeName == "arrow right")
+            isHit = true;
+
+            if (collision.gameObject.GetComponent<SavedShapeNameAndScore>().shapeName == "arrow right")
             {
                 treeAnim.SetBool("fall right", true);
                 gameObject.layer = LayerMask.NameToLayer("Ground");
                 //fall right
             }
-            else if (GameObject.FindAnyObjectByType<ShapeRecognizer>().drawnShapeName == "triangle left" ||
-                GameObject.FindAnyObjectByType<ShapeRecognizer>().drawnShapeName == "triangle right")
+            else if (collision.gameObject.GetComponent<SavedShapeNameAndScore>().shapeName == "triangle left" ||
+                collision.gameObject.GetComponent<SavedShapeNameAndScore>().shapeName == "triangle right")
             {
                 treeAnim.SetBool("explode", true);
                 //explode
             }
-            else if (GameObject.FindAnyObjectByType<ShapeRecognizer>().drawnShapeName == "arrow left")
+            else if (collision.gameObject.GetComponent<SavedShapeNameAndScore>().shapeName == "arrow left")
             {
                 treeAnim.SetBool("fall left", true);
 
@@ -53,7 +58,7 @@ public class TreeAtCliff : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         FallShake();
         ahSound.Play();
-        Destroy(gameObject);
+        Explode();
     }
 
     public void FallShake()
