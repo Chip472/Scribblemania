@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
     bool isCharging = false;
     
     public int maxHealth = 100;
-    private int currentHealth;
+    public int currentHealth;
 
 
     void Start()

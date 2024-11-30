@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
     public bool isPlayerDead = false;
     bool isDeadPanelShowed = false;
 
+    public GameObject escMenu;
+    public bool isEscMenuShowed = false;
+
     private void Start()
     {
         saveFilePath = Application.dataPath + "/StreamingAssets/checkpoint.json";
@@ -27,6 +30,20 @@ public class GameManager : MonoBehaviour
             isDeadPanelShowed = true;
             StartCoroutine(DelayDie());
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && !isEscMenuShowed)
+        {
+            isEscMenuShowed = true;
+            Time.timeScale = 0f;
+            escMenu.SetActive(true);
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) && escMenu.activeSelf && isEscMenuShowed)
+        {
+            Time.timeScale = 1f;
+            isEscMenuShowed = false;
+            escMenu.SetActive(false);
+        }
+
     }
 
     IEnumerator DelayDie()
@@ -64,7 +81,8 @@ public class GameManager : MonoBehaviour
 
     public void LoadCheckpoint()
     {
-        deadPanel.SetActive(false);
+        deadPanel.SetActive(false); 
+        PlayerPrefs.SetFloat("Battery", 100f);
 
         if (player != null)
         {
@@ -88,6 +106,14 @@ public class GameManager : MonoBehaviour
             {
                 FindOrAssignPlayer();
                 MovePlayerToCheckpoint(data);
+                if (data.sceneName == "Level 1")
+                {
+                    FindFirstObjectByType<ShapeRecognizer>().UnlockShape("rectangle");
+                    FindFirstObjectByType<ShapeRecognizer>().UnlockShape("arrow");
+                    FindFirstObjectByType<ShapeRecognizer>().UnlockShape("triangle");
+                    FindFirstObjectByType<TreeAtCliff>().isCompleteTutor = true;
+                    FindFirstObjectByType<Lvl1Manager>().isLoadCheckPoint = true;
+                }
             };
         }
         else

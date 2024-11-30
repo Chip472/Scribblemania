@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChargeTabletToSaveGame : MonoBehaviour
 {
@@ -13,10 +13,18 @@ public class ChargeTabletToSaveGame : MonoBehaviour
     private bool isSaving = false;
 
     public bool check;
+    public AudioSource chargeSFX;
+
+    public float maxBattery = 100f;
+    public float currentBattery = 100f;
+
+    public Slider batterySlider;
 
     void Start()
     {
+        currentBattery = PlayerPrefs.GetFloat("Battery", 100);
         check = false;
+        UpdateBatteryUI();
     }
 
     private void Update()
@@ -44,7 +52,7 @@ public class ChargeTabletToSaveGame : MonoBehaviour
         }
     }
 
-    IEnumerator DelayJump()
+    private IEnumerator DelayJump()
     {
         yield return new WaitForSeconds(1f);
     }
@@ -55,14 +63,30 @@ public class ChargeTabletToSaveGame : MonoBehaviour
         player.DisableMovement();
         player.MoveToPosition(savePosition);
         battery.SetActive(true);
+        chargeSFX.Play();
 
         yield return new WaitForSeconds(saveDelay);
 
         battery.SetActive(false);
         GameObject.FindAnyObjectByType<GameManager>().SaveCheckpoint();
+        RechargeBattery();
         player.EnableMovement();
         isSaving = false;
     }
 
+    private void RechargeBattery()
+    {
+        PlayerPrefs.SetFloat("Battery", maxBattery);
+        currentBattery = maxBattery;
+        Debug.Log($"Battery recharged: {currentBattery}/{maxBattery}");
+        UpdateBatteryUI();
+    }
 
+    private void UpdateBatteryUI()
+    {
+        if (batterySlider != null)
+        {
+            batterySlider.value = currentBattery / maxBattery;
+        }
+    }
 }

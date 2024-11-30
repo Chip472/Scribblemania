@@ -187,7 +187,7 @@ MonoBehaviour:
   ahSound: {fileID: 0}
   worm: {fileID: 0}
   treeAnim: {fileID: 7201487154582654550}
-  isCompleteTutor: 0
+  isCompleteTutor: 1
   isHit: 0
 --- !u!60 &5833606694202966762
 PolygonCollider2D:

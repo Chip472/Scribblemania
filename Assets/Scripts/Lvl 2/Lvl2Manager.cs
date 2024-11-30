@@ -16,16 +16,21 @@ public class Lvl2Manager : MonoBehaviour
     private PlayerMovement playerMovement;
 
     bool isLvl2Done = false;
+    public GameObject aliTriggerDia;
+
+    public AudioSource forestSFX, battleSFX;
 
     void Start()
     {
         shapeRecognizer = GetComponent<ShapeRecognizer>();
-        isDiaEnd = new bool[dialogues.Length];
+        isDiaEnd = new bool[dialogues.Length + 1];
         playerMovement = player.GetComponent<PlayerMovement>();
 
         shapeRecognizer.UnlockShape("rectangle");
         shapeRecognizer.UnlockShape("triangle");
         shapeRecognizer.UnlockShape("arrow");
+
+        PlayerPrefs.SetFloat("Battery", 100);
     }
 
     // Update is called once per frame
@@ -49,6 +54,8 @@ public class Lvl2Manager : MonoBehaviour
         if (!dialogues[1].activeSelf && isDiaEnd[2])
         {
             isDiaEnd[2] = false;
+
+            battleSFX.Play();
 
             Flip(potatoes[0]);
             Flip(potatoes[2]);
@@ -79,7 +86,7 @@ public class Lvl2Manager : MonoBehaviour
             if (!dialogues[2].activeSelf && !dialogues[3].activeSelf && !dialogues[5].activeSelf && ground.isHitByShape && isDiaEnd[6])
             {
                 isDiaEnd[6] = false;
-                dialogues[3].SetActive(true);
+                dialogues[4].SetActive(true);
             }
         }
 
@@ -97,6 +104,7 @@ public class Lvl2Manager : MonoBehaviour
         if (isLvl2Done && !dialogues[6].activeSelf)
         {
             gameObject.GetComponent<Lvl3Manager>().enabled = true;
+            aliTriggerDia.SetActive(true);
             gameObject.GetComponent<Lvl2Manager>().enabled = false;
         }
     }
@@ -122,6 +130,7 @@ public class Lvl2Manager : MonoBehaviour
 
     IEnumerator DelayDiedChief()
     {
+        forestSFX.Stop();
         potatoeChief.GetComponent<Animator>().SetBool("dead", true);
         Flip(potatoes[0]);
         Flip(potatoes[2]);

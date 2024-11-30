@@ -14,6 +14,8 @@ public class PrologueManager : MonoBehaviour
     [SerializeField] GameObject mainCam;
     [SerializeField] Animator transiAnim;
 
+    public AudioSource suckInSFX, newWorldSFX;
+
     bool isDia1End = false;
     bool isDia2End = false;
     bool isDia3End = false;
@@ -52,6 +54,7 @@ public class PrologueManager : MonoBehaviour
         {
             isDia4End = false;
             suckInBg.SetActive(true);
+            StartCoroutine(DelayEnd());
         }
     }
 
@@ -112,7 +115,10 @@ public class PrologueManager : MonoBehaviour
 
     IEnumerator DelayEnd()
     {
-        yield return new WaitForSeconds(1f);
+        newWorldSFX.Play();
+        yield return new WaitForSeconds(4f);
+
+        suckInSFX.Play();
         transiAnim.SetBool("fade in", true);
 
         yield return new WaitForSeconds(1f);

@@ -8,7 +8,7 @@ public class TreeAtCliff : MonoBehaviour
     public GameObject worm;
     public Animator treeAnim;
 
-    public bool isCompleteTutor = false;
+    public bool isCompleteTutor;
     public bool isHit = false;
 
     private void Start()

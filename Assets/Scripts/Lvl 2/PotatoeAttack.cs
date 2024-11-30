@@ -28,6 +28,7 @@ public class PotatoeAttack : MonoBehaviour
     private bool isDead = false;
 
     public int potatoAttackDam;
+    public AudioSource potatoeDieSFX;
 
     void Start()
     {
@@ -187,6 +188,7 @@ public class PotatoeAttack : MonoBehaviour
     }
     private void OnDestroy()
     {
+        potatoeDieSFX.Play();
         Lvl2Manager manager = FindAnyObjectByType<Lvl2Manager>();
         if (manager != null)
         {

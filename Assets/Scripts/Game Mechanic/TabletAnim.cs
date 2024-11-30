@@ -16,8 +16,8 @@ public class TabletAnim : MonoBehaviour
     private bool isChanging;
 
     [SerializeField] private Animator tabletAnimator; 
-    [SerializeField] private string animationName;
-    [SerializeField] private float animationLength; 
+    [SerializeField] public string animationName;
+    [SerializeField] private float animationLength;
 
     void Start()
     {
@@ -57,7 +57,6 @@ public class TabletAnim : MonoBehaviour
         Debug.LogError($"Animation '{name}' not found in Animator.");
         return null;
     }
-
 
     void FixedUpdate()
     {

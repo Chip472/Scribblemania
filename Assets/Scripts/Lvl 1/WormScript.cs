@@ -5,6 +5,8 @@ using UnityEngine;
 public class WormScript : MonoBehaviour
 {
     public AudioSource ackSFX;
+    public AudioSource spawnTreeSFX;
+
     public GameObject smallTree;
     public GameObject bigTree;
     public Transform props;
@@ -24,6 +26,11 @@ public class WormScript : MonoBehaviour
         bigTree.GetComponent<TreeAtCliff>().ahSound = ackSFX;
         bigTree.GetComponent<TreeAtCliff>().worm = gameObject;
         bigTree.GetComponent<TreeAtCliff>().isCompleteTutor = true;
+    }
+
+    public void PlayMicrowaveSound()
+    {
+        spawnTreeSFX.Play();
     }
 
     public void HideSelf()

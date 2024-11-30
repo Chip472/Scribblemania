@@ -75,7 +75,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TopWidth: 0.040000156
+    - _TopWidth: 0.8200002
     - _Transparency: 1
     - _UVSec: 0
     - _ZWrite: 1

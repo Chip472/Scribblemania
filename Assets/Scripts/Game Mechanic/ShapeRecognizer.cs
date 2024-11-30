@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PDollarGestureRecognizer;
 using UnityEngine.Rendering;
 using System.Collections;
+using UnityEngine.UI;
 
 public class ShapeRecognizer : MonoBehaviour
 {
@@ -28,7 +29,19 @@ public class ShapeRecognizer : MonoBehaviour
 
     public ParticleSystem psArrow, psTriangle, psCircle;
 
-    // Shape unlock toggles
+    public AudioSource shootSFX;
+    public AudioSource triangleSFX, arrowSFX;
+
+    public float maxBattery = 100f;
+    public float currentBattery = 100f;
+    public float rechargeRate = 10f;
+    public bool atSavePoint = false;
+    
+    public Slider batterySlider;
+
+    public bool isUsingUltimate = false;
+    public GameObject stickPrefab;
+
     private Dictionary<string, bool> unlockedShapes = new Dictionary<string, bool>
     {
         { "arrow", false },
@@ -39,8 +52,27 @@ public class ShapeRecognizer : MonoBehaviour
         { "star", false }
     };
 
+    private Dictionary<string, float> shapeBatteryCosts = new Dictionary<string, float>
+    {
+        { "arrow up", 1f },
+        { "arrow down", 1f },
+        { "arrow left", 1f },
+        { "arrow right", 1f },
+        { "triangle up", 5f },
+        { "triangle down", 5f },
+        { "triangle left", 5f },
+        { "triangle right", 5f },
+        { "circle", 5f },
+        { "rectangle", 3f },
+        { "heart", 10f },
+        { "star", 15f }
+    };
+
+
     void Start()
     {
+        currentBattery = PlayerPrefs.GetFloat("Battery", 100);
+
         string[] filePaths = System.IO.Directory.GetFiles(Application.dataPath + "/SavedShapes/", "*.xml");
         foreach (string filePath in filePaths)
             trainingSet.Add(GestureIO.ReadGestureFromFile(filePath));
@@ -48,6 +80,11 @@ public class ShapeRecognizer : MonoBehaviour
 
     void Update()
     {
+        if (batterySlider != null)
+        {
+            batterySlider.value = currentBattery / maxBattery;
+        }
+
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
             if (Input.touchCount > 0)
@@ -73,6 +110,14 @@ public class ShapeRecognizer : MonoBehaviour
 
     void Stuff()
     {
+        currentBattery = PlayerPrefs.GetFloat("Battery", 100);
+
+        if (currentBattery <= 0f)
+        {
+            Debug.Log("Battery depleted! Cannot draw.");
+            return;
+        }
+
         if (IsWithinDrawArea(virtualKeyPosition) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
         {
             if (Input.GetMouseButtonDown(0))
@@ -151,13 +196,30 @@ public class ShapeRecognizer : MonoBehaviour
 
     private void CreateShapeGameObject(string shapeName, float gestureScore)
     {
-        // Check if the shape is unlocked
         if (!IsShapeUnlocked(shapeName) || gestureScore <= 0.9f)
         {
             Debug.Log($"Shape {shapeName} not unlocked or low score. Vanishing...");
-            Vanish(CreateTemporaryShapeObject());
+            Vanish(CreateTemporaryShapeObject(), Color.black);
             return;
         }
+
+        // Check battery cost
+        if (!shapeBatteryCosts.TryGetValue(shapeName.ToLower(), out float batteryCost))
+        {
+            Debug.LogWarning($"Shape {shapeName} has no battery cost defined.");
+            return;
+        }
+
+        if (currentBattery < batteryCost)
+        {
+            Debug.Log("Not enough battery to draw this shape!");
+            return;
+        }
+
+        // Deduct battery
+        currentBattery -= batteryCost;
+        PlayerPrefs.SetFloat("Battery", currentBattery);
+        Debug.Log($"Battery used: {batteryCost}. Remaining: {currentBattery}/{maxBattery}");
 
         GameObject shapeObject = new GameObject("Drawn shape");
         Rigidbody2D rb = shapeObject.AddComponent<Rigidbody2D>();
@@ -202,50 +264,58 @@ public class ShapeRecognizer : MonoBehaviour
         switch (shapeName.ToLower())
         {
             case "arrow up":
+                shootSFX.Play();
                 rb.velocity = Vector2.up * arrowSpd;
-                ExplodeOnCollision(shape, psArrow);
+                ExplodeOnCollision(shape, psArrow, arrowSFX);
                 SavedShape(shape);
                 break;
 
             case "arrow down":
+                shootSFX.Play();
                 rb.velocity = Vector2.down * arrowSpd;
-                ExplodeOnCollision(shape, psArrow);
+                ExplodeOnCollision(shape, psArrow, arrowSFX);
                 SavedShape(shape);
                 break;
 
             case "arrow right":
+                shootSFX.Play();
                 rb.velocity = Vector2.right * arrowSpd;
-                ExplodeOnCollision(shape, psArrow);
+                ExplodeOnCollision(shape, psArrow, arrowSFX);
                 SavedShape(shape);
                 break;
 
             case "arrow left":
+                shootSFX.Play();
                 rb.velocity = Vector2.left * arrowSpd;
-                ExplodeOnCollision(shape, psArrow);
+                ExplodeOnCollision(shape, psArrow, arrowSFX);
                 SavedShape(shape);
                 break;
 
             case "triangle up":
+                shootSFX.Play();
                 rb.velocity = Vector2.up * triaSpd;
-                ExplodeOnCollision(shape, psTriangle);
+                ExplodeOnCollision(shape, psTriangle, triangleSFX);
                 SavedShape(shape);
                 break;
 
             case "triangle down":
+                shootSFX.Play();
                 rb.velocity = Vector2.down * triaSpd;
-                ExplodeOnCollision(shape, psTriangle);
+                ExplodeOnCollision(shape, psTriangle, triangleSFX);
                 SavedShape(shape);
                 break;
 
             case "triangle right":
+                shootSFX.Play();
                 rb.velocity = Vector2.right * triaSpd;
-                ExplodeOnCollision(shape, psTriangle);
+                ExplodeOnCollision(shape, psTriangle, triangleSFX);
                 SavedShape(shape);
                 break;
 
             case "triangle left":
+                shootSFX.Play();
                 rb.velocity = Vector2.left * triaSpd;
-                ExplodeOnCollision(shape, psTriangle);
+                ExplodeOnCollision(shape, psTriangle, triangleSFX);
                 SavedShape(shape);
                 break;
 
@@ -260,11 +330,12 @@ public class ShapeRecognizer : MonoBehaviour
                 break;
 
             case "heart":
-                //heart
+                Vanish(shape, new Color(255, 0, 190));
                 break;
 
             case "star":
-                //ulti
+                StarUltimate(shape);
+                SavedShape(shape);
                 break;
 
             default:
@@ -273,7 +344,7 @@ public class ShapeRecognizer : MonoBehaviour
         }
     }
 
-    private void Vanish(GameObject shape)
+    private void Vanish(GameObject shape, Color fadeColor)
     {
         Rigidbody2D rb = shape.GetComponent<Rigidbody2D>();
         if (rb != null)
@@ -289,10 +360,10 @@ public class ShapeRecognizer : MonoBehaviour
             collider.enabled = false;
         }
 
-        StartCoroutine(FadeAndDestroyShape(shape));
+        StartCoroutine(FadeAndDestroyShape(shape, fadeColor));
     }
 
-    private IEnumerator FadeAndDestroyShape(GameObject shape)
+    private IEnumerator FadeAndDestroyShape(GameObject shape, Color fadeColor)
     {
         LineRenderer lineRenderer = shape.GetComponentInChildren<LineRenderer>();
         if (lineRenderer == null) yield break;
@@ -300,15 +371,16 @@ public class ShapeRecognizer : MonoBehaviour
         float fadeDuration = 0.3f;
         float startTime = Time.time;
 
-        Color startColor = lineRenderer.startColor;
-        Color blackColor = new Color(0, 0, 0, startColor.a);
-        lineRenderer.startColor = blackColor;
-        lineRenderer.endColor = blackColor;
+        Color startColor = fadeColor;
+        Color endColor = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 0); // Fade to transparent
+
+        lineRenderer.startColor = startColor;
+        lineRenderer.endColor = startColor;
 
         while (Time.time < startTime + fadeDuration)
         {
             float t = (Time.time - startTime) / fadeDuration;
-            Color fadedColor = Color.Lerp(blackColor, new Color(0, 0, 0, 0), t);
+            Color fadedColor = Color.Lerp(startColor, endColor, t);
 
             lineRenderer.startColor = fadedColor;
             lineRenderer.endColor = fadedColor;
@@ -317,6 +389,7 @@ public class ShapeRecognizer : MonoBehaviour
 
         Destroy(shape);
     }
+
 
     #region Line renderer stuff
 
@@ -349,13 +422,24 @@ public class ShapeRecognizer : MonoBehaviour
         saved.shapeName = drawnShapeName;
         saved.shapeScore = drawnShapeScore;
     }
-    private void ExplodeOnCollision(GameObject shape, ParticleSystem particle)
+
+    private void StarUltimate(GameObject shape)
+    {
+        StarSpawner starSpawner = shape.AddComponent<StarSpawner>();
+        starSpawner.stickPrefab = stickPrefab;
+        starSpawner.transform.position = shape.transform.position;
+
+        isUsingUltimate = true;
+    }
+
+    private void ExplodeOnCollision(GameObject shape, ParticleSystem particle, AudioSource sfx)
     {
         Collider2D collider = shape.GetComponent<Collider2D>();
         collider.isTrigger = false;
-        collider.gameObject.AddComponent<ExplosionBehavior>();
+        ExplosionBehavior stuff = collider.gameObject.AddComponent<ExplosionBehavior>();
 
-        shape.GetComponent<ExplosionBehavior>().explosionEffect = particle;
+        stuff.explosionEffect = particle;
+        stuff.explosionSoundSource = sfx;
     }
 
     private void BreakOnTrigger(GameObject shape)
@@ -385,7 +469,7 @@ public class ShapeRecognizer : MonoBehaviour
 
     private void AddCircleMovement(GameObject shape, Rigidbody2D rb, Transform player)
     {
-        ExplodeOnCollision(shape, psCircle);
+        ExplodeOnCollision(shape, psCircle, triangleSFX);
 
         shape.AddComponent<OrbBehavior>();
 

@@ -18,6 +18,7 @@ public class Lvl1Manager : MonoBehaviour
     private PlayerMovement playerMovement;
 
     bool checkCliffTrigger = false;
+    public bool isLoadCheckPoint = false;
 
     void Start()
     {
@@ -89,13 +90,13 @@ public class Lvl1Manager : MonoBehaviour
             alien.SetActive(false);
         }
 
-        if (!GameObject.Find("Tutor 2 trigger") && shapeRecognizer.drawnShapeName == "arrow down" && shapeRecognizer.drawnShapeScore >= 0.9f && !isDiaEnd[4])
+        if (!GameObject.Find("Tutor 2 trigger") && shapeRecognizer.drawnShapeName == "arrow down" && shapeRecognizer.drawnShapeScore >= 0.9f && !isDiaEnd[4] && !isLoadCheckPoint)
         {
             shapeRecognizer.UnlockShape("triangle");
             isDiaEnd[4] = true;
             dialogues[6].SetActive(true);
         }
-        if (!dialogues[6].activeSelf && isDiaEnd[4] && shapeRecognizer.drawnShapeName == "triangle left" && shapeRecognizer.drawnShapeScore >= 0.9f)
+        if (!dialogues[6].activeSelf && isDiaEnd[4] && shapeRecognizer.drawnShapeName == "triangle left" && shapeRecognizer.drawnShapeScore >= 0.9f && !isLoadCheckPoint)
         {
             isDiaEnd[4] = false;
             dialogues[7].SetActive(true);
@@ -103,7 +104,7 @@ public class Lvl1Manager : MonoBehaviour
             checkCliffTrigger = true;
         }
          
-        if (!dialogues[8].activeSelf && GameObject.Find("Triggers").transform.GetChild(1).gameObject.name != "Cliff trigger" && !isDiaEnd[5] && checkCliffTrigger)
+        if (!dialogues[8].activeSelf && GameObject.Find("Triggers").transform.GetChild(1).gameObject.name != "Cliff trigger" && !isDiaEnd[5] && checkCliffTrigger && !isLoadCheckPoint)
         {
             shapeRecognizer.drawnShapeName = null;
             shapeRecognizer.drawnShapeScore = 0;
@@ -123,7 +124,7 @@ public class Lvl1Manager : MonoBehaviour
             }
             else if (GameObject.Find("Worm").activeSelf && !FindFirstObjectByType<GameManager>().isPlayerDead)
             {
-                StartCoroutine(DelayCliffScene(9f, 10));
+                StartCoroutine(DelayCliffScene(7f, 10));
             }
         }
 

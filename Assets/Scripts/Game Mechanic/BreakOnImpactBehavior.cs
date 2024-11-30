@@ -9,11 +9,13 @@ public class BreakOnImpactBehavior : MonoBehaviour
     public LineRenderer lineRenderer;
     public int piecesToCreate = 15;
 
+    private SavedShapeNameAndScore savedShape;
     private ShapeRecognizer shapeRecognizer;
 
     private void Start()
     {
         shapeRecognizer = FindFirstObjectByType<ShapeRecognizer>();
+        savedShape = GetComponent<SavedShapeNameAndScore>();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -50,7 +52,7 @@ public class BreakOnImpactBehavior : MonoBehaviour
 
     void CreateLinePiece(Vector3 start, Vector3 end)
     {
-        GameObject linePiece = new GameObject("LinePiece");
+        GameObject linePiece = new GameObject("Drawn shape");
 
         Rigidbody2D pieceRb = linePiece.AddComponent<Rigidbody2D>();
 
@@ -66,6 +68,10 @@ public class BreakOnImpactBehavior : MonoBehaviour
         pieceRenderer.endColor = lineRenderer.endColor;
         pieceRenderer.startWidth = lineRenderer.startWidth;
         pieceRenderer.endWidth = lineRenderer.endWidth;
+
+        SavedShapeNameAndScore saved = linePiece.AddComponent<SavedShapeNameAndScore>();
+        saved.shapeName = savedShape.shapeName;
+        saved.shapeScore = savedShape.shapeScore;
 
         BoxCollider2D pieceCollider = linePiece.AddComponent<BoxCollider2D>();
         Vector2 lineDirection = end - start;

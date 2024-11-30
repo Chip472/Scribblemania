@@ -7,6 +7,8 @@ public class ExplosionBehavior : MonoBehaviour
 
     public float maxFlyTime = 30f;
 
+    public AudioSource explosionSoundSource;
+
     private void Start()
     {
         Destroy(gameObject, maxFlyTime);
@@ -25,9 +27,12 @@ public class ExplosionBehavior : MonoBehaviour
             Debug.Log($"Collision point: {collisionPoint}");
 
             ParticleSystem explosion = Instantiate(explosionEffect, collisionPoint, Quaternion.identity);
+            AudioSource audioSource = Instantiate(explosionSoundSource, collisionPoint, Quaternion.identity);
+
             explosion.Play();
 
             Destroy(explosion.gameObject, explosionDuration);
+            Destroy(audioSource.gameObject, explosionDuration);
         }
 
         Destroy(gameObject);
