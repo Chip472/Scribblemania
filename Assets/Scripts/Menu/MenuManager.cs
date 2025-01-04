@@ -56,6 +56,7 @@ public class MenuManager : MonoBehaviour
 
     public void StartNewGame()
     {
+        PlayerPrefs.SetFloat("Battery", 100f);
         SceneManager.LoadScene(1);
     }
 

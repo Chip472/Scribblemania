@@ -14,7 +14,7 @@ public class DialogueSystem : MonoBehaviour
     [SerializeField] private float soundSpeed;
     [SerializeField] private AudioSource dialogueSFX;
 
-    private int currentLineIndex;
+    public int currentLineIndex;
     private bool isTyping;
     private string currentText = string.Empty;
 

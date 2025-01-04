@@ -24,6 +24,7 @@ public class PrologueManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        PlayerPrefs.SetFloat("Battery", 100f);
         StartCoroutine(DelayStart());
     }
 

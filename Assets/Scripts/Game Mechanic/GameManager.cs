@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        saveFilePath = Application.dataPath + "/StreamingAssets/checkpoint.json";
+        saveFilePath = Application.streamingAssetsPath + "/checkpoint.json";
     }
 
     void Update()

@@ -73,7 +73,7 @@ public class ShapeRecognizer : MonoBehaviour
     {
         currentBattery = PlayerPrefs.GetFloat("Battery", 100);
 
-        string[] filePaths = System.IO.Directory.GetFiles(Application.dataPath + "/SavedShapes/", "*.xml");
+        string[] filePaths = System.IO.Directory.GetFiles(Application.streamingAssetsPath + "/SavedShapes/", "*.xml");
         foreach (string filePath in filePaths)
             trainingSet.Add(GestureIO.ReadGestureFromFile(filePath));
     }
